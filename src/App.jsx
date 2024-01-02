@@ -49,7 +49,7 @@ function App() {
   useEffect(() => {
     const Country = async () => {
       const res = await fetch(
-        `https://country-server-hasanujjamanjibon.vercel.app/api/allcountries?page=${currentPage}&items=${itemsPerPage}&region=${filterByRegion}&subregion=${searchbyText}`
+        `https://rest-country-server-hasanujjamanjibon.vercel.app/api/allcountries?page=${currentPage}&items=${itemsPerPage}&region=${filterByRegion}&subregion=${searchbyText}`
       );
       const data = await res.json();
       setCountries(data.result);
@@ -92,8 +92,12 @@ function App() {
         </div>
         <div className="min-w-max">
           <label htmlFor="select">Show :</label>
-          <select onChange={(e) => handleItemsPerPage(e.target.value)} name="" id="select">
-            <option value="12">12</option>
+          <select
+            value={ItemsPerPage}
+            onChange={(e) => handleItemsPerPage(e.target.value)}
+            id="select"
+          >
+            <option disabled={ItemsPerPage === 12 ? true : false}>12</option>
             <option value="20">20</option>
             <option value="25">25</option>
             <option value="30">30</option>
