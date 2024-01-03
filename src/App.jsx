@@ -21,7 +21,7 @@ function App() {
 
   // handler function
   const handlerSearchText = () => {
-    const specialChars = /[!@#$%^&*(),.[\]+?":/`\\{}|<>0123456789]/;
+    const specialChars = /[!@#$%^&*(),.[\]+?"'=~:\-_/`\\{}|<>0123456789]/;
 
     // Check if the searchField contains any special characters
     if (specialChars.test(searchText.current.value)) {
