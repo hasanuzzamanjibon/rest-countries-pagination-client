@@ -67,6 +67,8 @@ function App() {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const pageNumbers = [...Array(totalPages).keys()].map((num) => num + 1);
   const regions = [...new Set(allCountries.map((country) => country.region))];
+  const subRegions = [...new Set(allCountries.map((allCountry) => allCountry.subregion))];
+
 
   useEffect(() => {
     const Country = async () => {
@@ -89,9 +91,20 @@ function App() {
           <input
             ref={searchText}
             type="search"
+            list="subregions"
+            name="subregion"
+            id="subregion"
             className=" text-center focus:border-0 focus:outline-none"
             placeholder="search by sub-region"
           />
+          <datalist id="subregions">
+            {subRegions &&
+              subRegions?.map((subregion, i) => (
+                <option key={i} value={subregion}>
+                  {subregion}
+                </option>
+              ))}
+          </datalist>
           <button
             onClick={() => handlerSearchText()}
             className="bg-slate-400 items-end py-2 px-3 text-white"
