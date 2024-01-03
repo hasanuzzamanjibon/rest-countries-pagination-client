@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { FaSearch } from "react-icons/fa";
+import Loader from "./component/Loader";
 
 function App() {
   // hook
@@ -12,18 +14,25 @@ function App() {
   const [filterByRegion, setRegion] = useState("");
   const [searchbyText, setSearchByText] = useState("");
   const [isLoading, setLoading] = useState(true);
-  console.log("ItemsPerPage", ItemsPerPage);
+
   // variable for button
   let curentIndex = parseInt(currentPage) - 1;
   let buttonIndex = parseInt(currentPage) + 4;
 
   // handler function
   const handlerSearchText = () => {
-    setLoading(true);
-    setItemsPerPage(12);
-    setCurrentPage(1);
-    setRegion("");
-    setSearchByText(searchText.current.value);
+    const specialChars = /[!@#$%^&*(),.[\]+?":/`\\{}|<>0123456789]/;
+
+    // Check if the searchField contains any special characters
+    if (specialChars.test(searchText.current.value)) {
+      toast.error("Special characters are not allowed in the search field.");
+    } else {
+      setLoading(true);
+      setItemsPerPage(12);
+      setCurrentPage(1);
+      setRegion("");
+      setSearchByText(searchText.current.value);
+    }
   };
 
   const handleItemsPerPage = (v) => {
@@ -32,6 +41,19 @@ function App() {
     setItemsPerPage(parseInt(v));
   };
 
+  const handleNextPage = () => {
+    setLoading(true);
+    setCurrentPage((prev) => prev + 1);
+  };
+  const handlePrevPage = () => {
+    setLoading(true);
+    setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleCurrentPage = (number) => {
+    setLoading(true);
+    setCurrentPage(number);
+  };
   const handleFilterByRegion = (region) => {
     setLoading(true);
     setItemsPerPage(12);
@@ -80,11 +102,15 @@ function App() {
         <div className="min-w-max">
           <label htmlFor="select">Filter By :</label>
           {regions ? (
-            <select id="select" onChange={(e) => handleFilterByRegion(e.target.value)}>
+            <select
+              value={filterByRegion}
+              id="select"
+              onChange={(e) => handleFilterByRegion(e.target.value)}
+            >
+              <option value="">All</option>
               {regions?.map((region, i) => (
                 <option key={i}>{region}</option>
               ))}
-              <option value="">All</option>
             </select>
           ) : (
             ""
@@ -105,19 +131,13 @@ function App() {
           </select>
         </div>
       </div>
-      <div className="text-xl font-semibold my-8">Total Countries : {TotalDocuments || 0}</div>
+      {/* <div className="text-xl font-semibold my-8">Total Countries : {TotalDocuments || 0}</div> */}
+      <div className="text-xl font-semibold my-8">
+        Total Countries : {isLoading ? 0 : TotalDocuments}
+      </div>
 
       {isLoading ? (
-        <div className="w-full h-screen flex justify-center items-center">
-          <div
-            className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]"
-            role="status"
-          >
-            <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">
-              Loading...
-            </span>
-          </div>
-        </div>
+        <Loader />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 ">
           {countries?.map((country, i) => (
@@ -137,39 +157,41 @@ function App() {
 
       <div className="text-center my-6">
         <p>
-          - {currentPage} Page of {totalPages} -
+          - {isLoading ? 0 : currentPage} Page of {isLoading ? 0 : totalPages} -
         </p>
       </div>
-      <div className="flex justify-center flex-wrap gap-3 ">
-        {currentPage !== 1 && (
-          <button
-            onClick={() => setCurrentPage(currentPage - 1)}
-            className="px-4 py-1 bg-slate-100  rounded-md text-xl font-bold"
-          >
-            &lt;
-          </button>
-        )}
+      {!isLoading && (
+        <div className="flex justify-center flex-wrap gap-3 ">
+          {currentPage !== 1 && (
+            <button
+              onClick={() => handlePrevPage()}
+              className="px-4 py-1 bg-slate-100  rounded-md text-xl font-bold"
+            >
+              &lt;
+            </button>
+          )}
 
-        {pageNumbers?.slice(curentIndex, buttonIndex)?.map((number, i) => (
-          <button
-            className={`px-4 py-1  rounded-md ${
-              currentPage === number ? "bg-slate-300" : "bg-slate-100"
-            }`}
-            key={i}
-            onClick={() => setCurrentPage(number)}
-          >
-            {number}
-          </button>
-        ))}
-        {currentPage !== totalPages && (
-          <button
-            onClick={() => setCurrentPage(currentPage + 1)}
-            className="px-4 py-1 bg-slate-100  rounded-md text-xl font-bold"
-          >
-            &gt;
-          </button>
-        )}
-      </div>
+          {pageNumbers?.slice(curentIndex, buttonIndex)?.map((number, i) => (
+            <button
+              className={`px-4 py-1  rounded-md ${
+                currentPage === number ? "bg-slate-300" : "bg-slate-100"
+              }`}
+              key={i}
+              onClick={() => handleCurrentPage(number)}
+            >
+              {number}
+            </button>
+          ))}
+          {currentPage !== totalPages && (
+            <button
+              onClick={() => handleNextPage()}
+              className="px-4 py-1 bg-slate-100  rounded-md text-xl font-bold"
+            >
+              &gt;
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
